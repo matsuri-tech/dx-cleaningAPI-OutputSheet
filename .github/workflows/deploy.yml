@@ -1,0 +1,34 @@
+# .github/workflows/deploy.yml
+name: Deploy to Google Apps Script
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Compile TypeScript
+      run: npm run build
+
+    - name: Deploy to Google Apps Script
+      run: |
+        npm install -g @google/clasp
+        clasp login --creds "${{ secrets.GOOGLE_APPS_SCRIPT_CREDENTIALS }}"
+        clasp push
+      env:
+        ACCESS_TOKEN: ${{ secrets.GOOGLE_APPS_SCRIPT_ACCESS_TOKEN }}
